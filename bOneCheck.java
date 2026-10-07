@@ -70,8 +70,6 @@ public class bOneCheck {
         int eExtra = (id < remainder) ? id + 1 : remainder;
         int e = (division * (id + 1)) + eExtra;
 
-        System.out.printf("b: %d e: %d worker: %d\n", b, e, id);
-
         for (int i = b; i <= e; i++) {
             // Check if each number is prime
             if (isPrime(i)) {
