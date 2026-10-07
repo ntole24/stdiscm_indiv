@@ -3,12 +3,12 @@ import java.util.List;
 
 public class A2B2 {
     public static void main(String[] args) {
-        int y = 42;
-        int x = 3;
+        long[] configs = configReader.readConfig();
+        long x = configs[0], y = configs[1];
         
-        List<Integer> answerList = new ArrayList<>(y);
+        List<Long> answerList = new ArrayList<>();
 
-        for (int i = 2; i <= y; i++) {
+        for (long i = 2; i <= y; i++) {
             bTwoCheck scheduler = new bTwoCheck(i, x);
 
             try {
@@ -22,7 +22,7 @@ public class A2B2 {
             }
         }
 
-        for (Integer answer: answerList) {
+        for (Long answer: answerList) {
             System.out.printf("Number: %d\n", answer);
         }
     }

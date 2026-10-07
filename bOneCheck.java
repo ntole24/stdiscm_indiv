@@ -2,28 +2,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class bOneCheck { 
-    private int y;
-    private int x;
+    private long y;
+    private long x;
     private int printType; // 0 -> immediate, 1 -> wait 
 
-    private volatile Thread[] workers;
+    private volatile List<Thread> workers;
 
-    private List<List<Integer>> answerLists;
+    private List<List<Long>> answerLists;
 
-    public bOneCheck(int y, int x, int printType) {
+    public bOneCheck(long y, long x, int printType) {
         this.y = y;
         this.x = x;
         this.printType = printType;
 
-        this.workers = new Thread[x];
+        this.workers = new ArrayList<>();
         this.answerLists = new ArrayList<>();
 
         for (int i = 0; i < x; i++) {
-            this.answerLists.add(new ArrayList<>(y));
+            this.answerLists.add(new ArrayList<>());
         }
     }
 
-    private boolean isPrime(int n) {
+    private boolean isPrime(long n) {
         if (n <= 1) {
             return false;
         }
@@ -37,7 +37,7 @@ public class bOneCheck {
         }
         
         // Check odd factors up to the square root of n
-        for (int i = 3; i * i <= n; i += 2) {
+        for (long i = 3; i * i <= n; i += 2) {
             if (n % i == 0) {
                 return false; // Found a factor, not prime
             }
@@ -49,8 +49,8 @@ public class bOneCheck {
     public void checkNumbers() throws InterruptedException {
         for (int i = 0; i < this.x; i++) {
             final int id = i;
-            this.workers[i] = new Thread(() -> workerAction(id), "Thread " + i);
-            this.workers[i].start();
+            this.workers.add(new Thread(() -> workerAction(id), "Thread " + i));
+            this.workers.get(i).start();
         }
 
         for (Thread w: this.workers)
@@ -60,17 +60,17 @@ public class bOneCheck {
     }
     
     private void workerAction(int id) {
-        int division = y / x;
-        int remainder = y % x;
+        long division = y / x;
+        long remainder = y % x;
         // Check what is the range u need to check
         // if index is less than remainder, then it has an extra!
-        int bExtra = (id < remainder) ? id : remainder;
-        int b = (division * id + 1) + bExtra;
+        long bExtra = (id < remainder) ? id : remainder;
+        long b = (division * id + 1) + bExtra;
         
-        int eExtra = (id < remainder) ? id + 1 : remainder;
-        int e = (division * (id + 1)) + eExtra;
+        long eExtra = (id < remainder) ? id + 1 : remainder;
+        long e = (division * (id + 1)) + eExtra;
 
-        for (int i = b; i <= e; i++) {
+        for (long i = b; i <= e; i++) {
             // Check if each number is prime
             if (isPrime(i)) {
                 if (printType == 0) {
@@ -89,10 +89,10 @@ public class bOneCheck {
         }
     }
 
-    public List<Integer> getAnswerList() {
-        List<Integer> all = new ArrayList<>();
+    public List<Long> getAnswerList() {
+        List<Long> all = new ArrayList<>();
 
-        for (List<Integer> r : this.answerLists) 
+        for (List<Long> r : this.answerLists) 
             all.addAll(r);
 
         // OPTIONAL

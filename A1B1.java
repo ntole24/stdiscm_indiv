@@ -1,10 +1,13 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 public class A1B1 {
     public static void main(String[] args) {
-        int y = 42;
-        int x = 3;
-        int printType = 0;
+        long[] configs = configReader.readConfig();
+        long x = configs[0], y = configs[1];
         
-        bOneCheck checker = new bOneCheck(y, x, printType);
+        bOneCheck checker = new bOneCheck(y, x, 0);
 
         try {
             checker.checkNumbers();

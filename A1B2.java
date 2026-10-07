@@ -1,9 +1,9 @@
 public class A1B2 {
     public static void main(String[] args) {
-        int y = 42;
-        int x = 3;
+        long[] configs = configReader.readConfig();
+        long x = configs[0], y = configs[1];
         
-        for (int i = 2; i <= y; i++) {
+        for (long i = 2; i <= y; i++) {
             bTwoCheck scheduler = new bTwoCheck(i, x);
 
             try {

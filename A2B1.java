@@ -2,18 +2,17 @@ import java.util.List;
 
 public class A2B1 {
     public static void main(String[] args) {
-        int y = 42;
-        int x = 3;
-        int printType = 1;
+        long[] configs = configReader.readConfig();
+        long x = configs[0], y = configs[1];
         
-        bOneCheck checker = new bOneCheck(y, x, printType);
+        bOneCheck checker = new bOneCheck(y, x, 1);
 
         try {
             checker.checkNumbers();
 
-            List<Integer> answerList = checker.getAnswerList();
+            List<Long> answerList = checker.getAnswerList();
 
-            for (Integer answer: answerList) {
+            for (long answer: answerList) {
                 System.out.printf("Number: %d\n", answer);
             }
         } catch (InterruptedException e) {

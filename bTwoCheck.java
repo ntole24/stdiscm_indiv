@@ -3,30 +3,30 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class bTwoCheck { 
-    private int n;
-    private int x; // thread count
+    private long n;
+    private long x; // thread count
 
-    private List<BlockingQueue<Integer>> queues;
-    private Thread[] workers;
-    private AtomicInteger factor = new AtomicInteger(0);
+    private List<BlockingQueue<Long>> queues;
+    private List<Thread> workers;
+    private AtomicLong factor = new AtomicLong(0);
     private volatile boolean stop = false; // volatile keyword -> ensures that changes made to this variable are immediately in main memory
     private volatile boolean threadsDone = false;
 
-    public bTwoCheck(int n, int x) {
+    public bTwoCheck(long n, long x) {
         this.n = n;
         this.x = x;
-        this.queues = new ArrayList<>(x);
-        this.workers = new Thread[x];
+        this.queues = new ArrayList<>();
+        this.workers = new ArrayList<>();
 
         for (int i = 0; i < x; i++) {
             queues.add(new ArrayBlockingQueue<>(16)); // bounded so we never flood memory
         }
     }
 
-    private static int candidate(int k) {
+    private static long candidate(long k) {
         return k == 0 ? 2 : 2 * k + 1;
     }
 
@@ -36,17 +36,17 @@ public class bTwoCheck {
         // Start workers
         for (int i = 0; i < this.x; i++) {
             final int id = i;
-            this.workers[i] = new Thread(() -> workerLoop(id), "Thread " + i);
-            this.workers[i].start();
+            this.workers.add(new Thread(() -> workerLoop(id), "Thread " + i));
+            this.workers.get(i).start();
         }
 
         scheduler_loop:
-        for (int k = 0; ; k++) {
-            int c = candidate(k);
+        for (long k = 0; ; k++) {
+            long c = candidate(k);
             
             if (c * c > n) break; // factor is out of range of factors for the number na
             
-            int targetThread = k % x;
+            int targetThread = (int) (k % x);
 
             while (!this.queues.get(targetThread).offer(c, 20, TimeUnit.MILLISECONDS)) {
                 if (this.stop) break scheduler_loop;
@@ -64,10 +64,10 @@ public class bTwoCheck {
 
     private void workerLoop(int id) {
         
-        BlockingQueue<Integer> inbox = this.queues.get(id);
+        BlockingQueue<Long> inbox = this.queues.get(id);
         try {
             while (!this.stop) {
-                Integer c = inbox.poll(20, TimeUnit.MILLISECONDS); // ether returns a value or null if nothing found within 20 miliseconds
+                Long c = inbox.poll(20, TimeUnit.MILLISECONDS); // ether returns a value or null if nothing found within 20 miliseconds
                 // System.out.println("Worker " + id + " c: " + c);
                 
                 if (c == null) {
