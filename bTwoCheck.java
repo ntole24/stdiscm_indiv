@@ -1,8 +1,7 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -10,7 +9,7 @@ public class bTwoCheck {
     private int n;
     private int x; // thread count
 
-    private BlockingQueue<Integer>[] queues;
+    private List<BlockingQueue<Integer>> queues;
     private Thread[] workers;
     private AtomicInteger factor = new AtomicInteger(0);
     private volatile boolean stop = false; // volatile keyword -> ensures that changes made to this variable are immediately in main memory
@@ -19,17 +18,15 @@ public class bTwoCheck {
     private int printType; // 0 -> immediate, 1 -> wait 
 
     private List<Integer> answerList;
-    private FutureTask<Boolean> task;
-    private Thread thread;
 
     public bTwoCheck(int n, int x, int printType) {
         this.n = n;
         this.x = x;
-        this.queues = new BlockingQueue[x];
+        this.queues = new ArrayList<>(x);
         this.workers = new Thread[x];
 
         for (int i = 0; i < x; i++) {
-            queues[i] = new ArrayBlockingQueue<>(16); // bounded so we never flood memory
+            queues.add(new ArrayBlockingQueue<>(16)); // bounded so we never flood memory
         }
 
         this.printType = printType;
@@ -57,7 +54,7 @@ public class bTwoCheck {
             
             int targetThread = k % x;
 
-            while (!this.queues[targetThread].offer(c, 20, TimeUnit.MILLISECONDS)) {
+            while (!this.queues.get(targetThread).offer(c, 20, TimeUnit.MILLISECONDS)) {
                 if (this.stop) break scheduler_loop;
             }
 
@@ -73,7 +70,7 @@ public class bTwoCheck {
 
     private void workerLoop(int id) {
         
-        BlockingQueue<Integer> inbox = this.queues[id];
+        BlockingQueue<Integer> inbox = this.queues.get(id);
         try {
             while (!this.stop) {
                 Integer c = inbox.poll(20, TimeUnit.MILLISECONDS); // ether returns a value or null if nothing found within 20 miliseconds
@@ -83,11 +80,11 @@ public class bTwoCheck {
                     if (this.threadsDone && inbox.isEmpty()) return; // nothing left to do
                     continue;
                 }
-                System.out.println("Thread " + id + " checking " + c);
+                // System.out.println("Thread " + id + " checking " + c);
 
                 if (this.n % c == 0) { // prime factor found!
                     if (this.factor.compareAndSet(0, c)) { // change factor to c (if it still equals to 0)
-                        System.out.println("T" + id + " found factor " + c + " -> stopping all threads");
+                        // System.out.println("T" + id + " found factor " + c + " -> stopping all threads");
                     }
 
                     this.stop = true;
@@ -99,9 +96,5 @@ public class bTwoCheck {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-    }
-
-    public int getFactor() {
-        return this.factor.get();
     }
 }
