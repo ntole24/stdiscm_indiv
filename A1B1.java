@@ -1,7 +1,3 @@
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Scanner;
-
 public class A1B1 {
     public static void main(String[] args) {
         long[] configs = configReader.readConfig();
