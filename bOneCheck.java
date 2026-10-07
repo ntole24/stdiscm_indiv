@@ -4,12 +4,16 @@ import java.util.List;
 public class bOneCheck { 
     private long y;
     private long x;
-    private int printType; // 0 -> immediate, 1 -> wait 
+    private int printType; // Needed variable to ensure that printing happens instantly if printType == 0
 
-    private volatile List<Thread> workers;
+    // List of workers that will be delegated a certain division of numbers to check
+    private List<Thread> workers;
 
+    /* If printing variation follows AII, this will be used to consolidate all the answers and combine them in the end 
+    to be printed. */
     private List<List<Long>> answerLists;
 
+    // Constructor
     public bOneCheck(long y, long x, int printType) {
         this.y = y;
         this.x = x;
@@ -23,6 +27,7 @@ public class bOneCheck {
         }
     }
 
+    // Helper function to determine if a given long integer is prime
     private boolean isPrime(long n) {
         if (n <= 1) {
             return false;
@@ -46,6 +51,7 @@ public class bOneCheck {
         return true;
     }
 
+    // Function to start each worker on checking their divisions
     public void checkNumbers() throws InterruptedException {
         for (int i = 0; i < this.x; i++) {
             final int id = i;
@@ -54,24 +60,26 @@ public class bOneCheck {
         }
 
         for (Thread w: this.workers)
-            w.join(); // ensure that all threads finish before continuing
+            w.join(); // Ensure that all threads finish before continuing
 
-        System.out.println("THREADS DONE");
+        System.out.printf("END TIME: %d\n", System.currentTimeMillis() / 1000L);
     }
     
+    // Function to define action that every worker takes once activated
     private void workerAction(int id) {
+        // Calculate the range of numbers that each worker will check
         long division = y / x;
         long remainder = y % x;
-        // Check what is the range u need to check
-        // if index is less than remainder, then it has an extra!
+       
         long bExtra = (id < remainder) ? id : remainder;
-        long b = (division * id + 1) + bExtra;
+        long b = (division * id + 1) + bExtra; // beginning of range
         
         long eExtra = (id < remainder) ? id + 1 : remainder;
-        long e = (division * (id + 1)) + eExtra;
+        long e = (division * (id + 1)) + eExtra; // end of range
 
+        // Every worker iterates from the beginning to end of its specified range and check if each number is prime
         for (long i = b; i <= e; i++) {
-            // Check if each number is prime
+            // Check if each number is prime or not
             if (isPrime(i)) {
                 if (printType == 0) {
                     System.out.printf("Index: %d Timestamp: %d Number: %d\n", id, System.currentTimeMillis() / 1000L, i);
@@ -81,6 +89,7 @@ public class bOneCheck {
                 }
             }
 
+            // Delay on each check
             try {
                 Thread.sleep(20);
             } catch (InterruptedException error) {
@@ -89,6 +98,7 @@ public class bOneCheck {
         }
     }
 
+    // Function to return the consolidated list of answers back to the caller, assuming it is following printing variation AII
     public List<Long> getAnswerList() {
         List<Long> all = new ArrayList<>();
 

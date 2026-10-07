@@ -3,18 +3,28 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class bTwoCheck { 
-    private long n;
-    private long x; // thread count
+    private long n; // The current number being check if it is prime
+    private long x;
 
-    private List<BlockingQueue<Long>> queues;
+    // List of workers that will constantly have factors added to it to check if n is divisibly by it
     private List<Thread> workers;
-    private AtomicLong factor = new AtomicLong(0);
-    private volatile boolean stop = false; // volatile keyword -> ensures that changes made to this variable are immediately in main memory
+
+    // Each worker will have its own queue of possible factors to check if n is divisible by them
+    private List<BlockingQueue<Long>> queues;
+
+    // Lock
+    private final Object lock = new Object();
+
+    // Variable that will represent the factor (if one exists) found that n is divisible by 
+    private long factor = 0;
+    
+    // Volatile keyword is important so that as soon as these values get edited, they are instantly reflected in main memory
+    private volatile boolean stop = false;
     private volatile boolean threadsDone = false;
 
+    // Constructor
     public bTwoCheck(long n, long x) {
         this.n = n;
         this.x = x;
@@ -26,10 +36,12 @@ public class bTwoCheck {
         }
     }
 
+    // Helper function to provide a candidate factor to be checked
     private static long candidate(long k) {
         return k == 0 ? 2 : 2 * k + 1;
     }
 
+    // Function that starts each thread to divide checking the possible factors for 1 given number
     public boolean isPrime() throws InterruptedException {
         if (n < 2) return false;
 
@@ -40,18 +52,22 @@ public class bTwoCheck {
             this.workers.get(i).start();
         }
 
-        scheduler_loop:
+        scheduler_loop: // Loop to delegate factors to each thread 
         for (long k = 0; ; k++) {
             long c = candidate(k);
             
-            if (c * c > n) break; // factor is out of range of factors for the number na
+            if (c * c > n) break; // Factor is out of range of factors for n, so we don't need to add it to the queues
             
+            // Round-robin style adding of each possible factor to each queue
             int targetThread = (int) (k % x);
 
+            /* Attempt to add the current candidate to the target thread's queue. If unsuccessful, keep trying to add
+            the candidate to the queue, only stopping if specified to do so using the stop variable */
             while (!this.queues.get(targetThread).offer(c, 20, TimeUnit.MILLISECONDS)) {
-                if (this.stop) break scheduler_loop;
+                if (this.stop) break scheduler_loop; // Queue was unable to be loaded but a possible factor was found already!
             }
 
+            // Stop check here in case a different thread found a factor at this point
             if (stop) break;
         }
         this.threadsDone = true;
@@ -59,26 +75,31 @@ public class bTwoCheck {
         for (Thread w: this.workers)
             w.join(); // ensure that all threads finish before continuing
 
-        return this.factor.get() == 0; // if it does == 0, that means no factor was found i.e. it is prime!
+        // No need to lock when returning, since at this point, all threads are finished!
+        return this.factor == 0;
     }
 
+    // Function that each worker loops through to constantly check its queue of actions 
     private void workerLoop(int id) {
-        
+        // inbox represents the factors that this loop will be checking, set from the .offer command in isPrime()
         BlockingQueue<Long> inbox = this.queues.get(id);
         try {
-            while (!this.stop) {
+            while (!this.stop) { // Constantly loop through this while the factors are not done being checked
                 Long c = inbox.poll(20, TimeUnit.MILLISECONDS); // ether returns a value or null if nothing found within 20 miliseconds
-                // System.out.println("Worker " + id + " c: " + c);
                 
+                // Don't finish the thread only until the thread's inbox is empty and the isPrime() has reached the threadsDone = true portino
                 if (c == null) {
-                    if (this.threadsDone && inbox.isEmpty()) return; // nothing left to do
+                    if (this.threadsDone && inbox.isEmpty()) return; 
                     continue;
                 }
-                // System.out.println("Thread " + id + " checking " + c);
 
-                if (this.n % c == 0) { // prime factor found!
-                    if (this.factor.compareAndSet(0, c)) { // change factor to c (if it still equals to 0)
-                        // System.out.println("T" + id + " found factor " + c + " -> stopping all threads");
+                // A factor is found!
+                if (this.n % c == 0) { 
+                    // Locks this critical section and prevents anyone else from touching it until the current thread here finishes it
+                    synchronized (lock) {
+                        if (factor == 0) { // first thread to get here wins
+                            factor = c;
+                        }
                     }
 
                     this.stop = true;
