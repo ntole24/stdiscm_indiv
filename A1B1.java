@@ -1,6 +1,3 @@
-import java.util.ArrayList;
-import java.util.List;
-
 public class A1B1 {
     public static void main(String[] args) {
         int y = 42;

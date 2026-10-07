@@ -5,23 +5,17 @@ public class A2B2 {
     public static void main(String[] args) {
         int y = 42;
         int x = 3;
-        int printType = 1;
         
         List<Integer> answerList = new ArrayList<>(y);
 
         for (int i = 2; i <= y; i++) {
-            bTwoCheck scheduler = new bTwoCheck(i, x, printType);
+            bTwoCheck scheduler = new bTwoCheck(i, x);
 
             try {
                 boolean prime = scheduler.isPrime();
                 
-                if (prime) {
-                    if (printType == 0) {
-                        System.out.printf("Number: %d\n", i);
-                    } else {
-                        answerList.add(i);
-                    }
-                }
+                if (prime) 
+                    System.out.printf("Number: %d\n", i);
 
             } catch (InterruptedException e) {
                 System.out.println("Code was interrupted, reason: " + e);

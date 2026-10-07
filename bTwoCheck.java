@@ -15,11 +15,7 @@ public class bTwoCheck {
     private volatile boolean stop = false; // volatile keyword -> ensures that changes made to this variable are immediately in main memory
     private volatile boolean threadsDone = false;
 
-    private int printType; // 0 -> immediate, 1 -> wait 
-
-    private List<Integer> answerList;
-
-    public bTwoCheck(int n, int x, int printType) {
+    public bTwoCheck(int n, int x) {
         this.n = n;
         this.x = x;
         this.queues = new ArrayList<>(x);
@@ -28,8 +24,6 @@ public class bTwoCheck {
         for (int i = 0; i < x; i++) {
             queues.add(new ArrayBlockingQueue<>(16)); // bounded so we never flood memory
         }
-
-        this.printType = printType;
     }
 
     private static int candidate(int k) {
