@@ -17,6 +17,9 @@ public class configReader {
                     configs[0] = Long.parseLong(buffer[1]);
                 } else if (buffer[0].equals("y")) {
                     configs[1] = Long.parseLong(buffer[1]);
+                } else {
+                    System.out.println("ERROR: Invalid read in config file. Only replace integers, and do not add anything else.");
+                    return null;
                 }
             }
         } catch (FileNotFoundException e) {

@@ -4,7 +4,7 @@ import java.util.List;
 public class bOneCheck { 
     private long y;
     private long x;
-    private int printType; // Needed variable to ensure that printing happens instantly if printType == 0
+    private int printType; // Needed variable to ensure that printing happens instantly if printType == 1
 
     // List of workers that will be delegated a certain division of numbers to check
     private List<Thread> workers;
@@ -62,7 +62,7 @@ public class bOneCheck {
         for (Thread w: this.workers)
             w.join(); // Ensure that all threads finish before continuing
 
-        System.out.printf("END TIME: %d\n", System.currentTimeMillis() / 1000L);
+        System.out.printf("END TIME: %d%n", System.currentTimeMillis() / 1000L);
     }
     
     // Function to define action that every worker takes once activated
@@ -81,10 +81,9 @@ public class bOneCheck {
         for (long i = e; i >= b; i--) {
             // Check if each number is prime or not
             if (isPrime(i)) {
-                if (printType == 0) {
-                    System.out.printf("Timestamp: %d Thread ID: %d Number: %d\n", id, System.currentTimeMillis() / 1000L, id, i);
+                if (printType == 1) {
+                    System.out.printf("Timestamp: %d Thread ID: %d Number: %d%n", System.currentTimeMillis() / 1000L, id, i);
                 } else {
-                    // System.out.printf("Adding: %d\n", i);
                     this.answerLists.get(id).add(i);
                 }
             }
