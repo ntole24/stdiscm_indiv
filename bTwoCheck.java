@@ -56,7 +56,7 @@ public class bTwoCheck {
         for (long k = 0; ; k++) {
             long c = candidate(k);
             
-            if (c * c > n) break; // Factor is out of range of factors for n, so we don't need to add it to the queues
+            if (c > n / c) break; // Factor is out of range of factors for n, so we don't need to add it to the queues
             
             // Round-robin style adding of each possible factor to each queue
             int targetThread = (int) (k % x);

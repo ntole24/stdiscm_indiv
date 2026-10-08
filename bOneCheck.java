@@ -42,7 +42,7 @@ public class bOneCheck {
         }
         
         // Check odd factors up to the square root of n
-        for (long i = 3; i * i <= n; i += 2) {
+        for (long i = 3; i <= n / i; i += 2) {
             if (n % i == 0) {
                 return false; // Found a factor, not prime
             }
@@ -78,11 +78,11 @@ public class bOneCheck {
         long e = (division * (id + 1)) + eExtra; // end of range
 
         // Every worker iterates from the beginning to end of its specified range and check if each number is prime
-        for (long i = b; i <= e; i++) {
+        for (long i = e; i >= b; i--) {
             // Check if each number is prime or not
             if (isPrime(i)) {
                 if (printType == 0) {
-                    System.out.printf("Index: %d Timestamp: %d Number: %d\n", id, System.currentTimeMillis() / 1000L, i);
+                    System.out.printf("Timestamp: %d Thread ID: %d Number: %d\n", id, System.currentTimeMillis() / 1000L, id, i);
                 } else {
                     // System.out.printf("Adding: %d\n", i);
                     this.answerLists.get(id).add(i);
