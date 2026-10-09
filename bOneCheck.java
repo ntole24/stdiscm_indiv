@@ -52,7 +52,7 @@ public class bOneCheck {
     }
 
     // Function to start each worker on checking their divisions
-    public void checkNumbers() throws InterruptedException {
+    public void startThreads() throws InterruptedException {
         for (int i = 0; i < this.x; i++) {
             final int id = i;
             this.workers.add(new Thread(() -> workerAction(id), "Thread " + i));
@@ -61,8 +61,6 @@ public class bOneCheck {
 
         for (Thread w: this.workers)
             w.join(); // Ensure that all threads finish before continuing
-
-        System.out.printf("END TIME: %d%n", System.currentTimeMillis() / 1000L);
     }
     
     // Function to define action that every worker takes once activated

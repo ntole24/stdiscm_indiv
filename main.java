@@ -1,5 +1,11 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class main {
     public static void main(String[] args) {
@@ -12,7 +18,7 @@ public class main {
             return;
         }
         
-        long[] configs = configReader.readConfig();
+        long[] configs = readConfig();
         long x = configs[0], y = configs[1];
         
         int printType = Integer.parseInt(args[0]);
@@ -20,12 +26,15 @@ public class main {
         
         List<Long> answerList = new ArrayList<>();
         
+        long startTimeNumber = System.currentTimeMillis();
+        String startTime = Instant.ofEpochMilli(startTimeNumber).atZone(ZoneId.of("Asia/Manila")).format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
+        System.out.printf("START TIME: %s%n%n", startTime);
         
         if (taskDivision == 1) {
             bOneCheck checker = new bOneCheck(y, x, printType);
             
             try {
-                checker.checkNumbers();
+                checker.startThreads();
                 
                 if (printType == 2) {
                     answerList = checker.getAnswerList();
@@ -56,6 +65,11 @@ public class main {
                 }
             }
         }
+
+        long endTimeNumber = System.currentTimeMillis();
+        String endTime = Instant.ofEpochMilli(endTimeNumber).atZone(ZoneId.of("Asia/Manila")).format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
+        System.out.printf("%nEND TIME: %s%n", endTime);
+        System.out.printf("TOTAL TIME: %d ms%n%n", endTimeNumber - startTimeNumber);
     }
 
     public static boolean validArguments(String[] args) {
@@ -85,5 +99,32 @@ public class main {
         }
     
         return true;
+    }
+
+    public static long[] readConfig() {
+        long[] configs = new long[2];
+
+        File file = new File("config.txt");
+    
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String[] buffer = line.split(" ");
+    
+                if (buffer[0].equals("x")) {
+                    configs[0] = Long.parseLong(buffer[1]);
+                } else if (buffer[0].equals("y")) {
+                    configs[1] = Long.parseLong(buffer[1]);
+                } else {
+                    System.out.println("ERROR: Invalid read in config file. Only replace integers, and do not add anything else.");
+                    return null;
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Error: The file could not be found.");
+            e.printStackTrace();
+        }
+
+        return configs;
     }
 }
