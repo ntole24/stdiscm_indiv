@@ -54,8 +54,11 @@ public class main {
                     boolean prime = scheduler.isPrime();
                     
                     if (prime) {
-                        if (printType == 1)
-                            System.out.printf("Number: %d Timestamp: %d%n", i, System.currentTimeMillis() / 1000L);
+                        if (printType == 1) {
+                            long currentTimeNumber = System.currentTimeMillis();
+                            String currentTime = Instant.ofEpochMilli(currentTimeNumber).atZone(ZoneId.of("Asia/Manila")).format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
+                            System.out.printf("Timestamp: %s Number: %d%n", currentTime, i);
+                        }
                         else if (printType == 2)
                             answerList.add(i);
                     } 

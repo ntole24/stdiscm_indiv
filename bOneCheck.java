@@ -1,3 +1,6 @@
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,7 +83,9 @@ public class bOneCheck {
             // Check if each number is prime or not
             if (isPrime(i)) {
                 if (printType == 1) {
-                    System.out.printf("Timestamp: %d Thread ID: %d Number: %d%n", System.currentTimeMillis() / 1000L, id, i);
+                    long currentTimeNumber = System.currentTimeMillis();
+                    String currentTime = Instant.ofEpochMilli(currentTimeNumber).atZone(ZoneId.of("Asia/Manila")).format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
+                    System.out.printf("Timestamp: %s Thread ID: %d Number: %d%n", currentTime, id, i);
                 } else {
                     this.answerLists.get(id).add(i);
                 }
