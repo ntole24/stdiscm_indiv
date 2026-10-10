@@ -7,7 +7,7 @@ import java.util.List;
 public class stressTest {
 
     // Values to be tested
-    static final long[] X_VALUES = {1, 4, 16, 64};     
+    static final long[] X_VALUES = {1, 2, 4, 16, 64};     
     static final long[] Y_VALUES = {50, 100, 300, 1000};        
 
     public static void main(String[] args) throws Exception {
