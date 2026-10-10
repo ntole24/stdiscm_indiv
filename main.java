@@ -14,7 +14,7 @@ public class main {
         if (!isValid) {
             System.out.println();
             System.out.println("Sample command input:");
-            System.out.println("javac main.java && java main [printType] [taskDivision]");
+            System.out.println("javac *.java && java main [printType] [taskDivision]");
             return;
         }
         
@@ -85,7 +85,7 @@ public class main {
     public static boolean validArguments(String[] args) {
         int buffer1 = 0, buffer2 = 0;
     
-        if (args.length < 2) {
+        if (args.length != 2) {
             System.out.println("Please input 2 arguments.");
             return false;
         }

@@ -79,7 +79,7 @@ public class bOneCheck {
         long e = (division * (id + 1)) + eExtra; // end of range
 
         // Every worker iterates from the beginning to end of its specified range and check if each number is prime
-        for (long i = e; i >= b; i--) {
+        for (long i = b; i <= e; i++) {
             // Check if each number is prime or not
             if (isPrime(i)) {
                 if (printType == 1) {
@@ -106,9 +106,6 @@ public class bOneCheck {
 
         for (List<Long> r : this.answerLists) 
             all.addAll(r);
-
-        // OPTIONAL
-        // Collections.sort(all);
 
         return all;
     }
