@@ -18,7 +18,12 @@ public class main {
             return;
         }
         
-        long[] configs = readConfig();
+        long[] configs = readConfig(); 
+
+        if (configs == null) {
+            return;
+        }
+
         long x = configs[0], y = configs[1];
         
         int printType = Integer.parseInt(args[0]);
@@ -110,24 +115,53 @@ public class main {
         long[] configs = new long[2];
 
         File file = new File("config.txt");
-    
+
+        int fileLength = 0;
+
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 String[] buffer = line.split(" ");
-    
+
+                fileLength++;
+
+                if (fileLength > 2) {
+                    System.out.printf("ERROR: There must be exactly 2 lines in config.txt.%nOne line must be in the form \"x <number>\", and the other must be in the form \"y <number>\".%n");
+                    return null;
+                }
+
+                if (buffer.length != 2) {
+                    System.out.println("ERROR: Each line must be in the form \"x <number>\" or \"y <number>\".");
+                    return null;
+                }
+
+                int index;
                 if (buffer[0].equals("x")) {
-                    configs[0] = Long.parseLong(buffer[1]);
+                    index = 0;
                 } else if (buffer[0].equals("y")) {
-                    configs[1] = Long.parseLong(buffer[1]);
+                    index = 1;
                 } else {
                     System.out.println("ERROR: Invalid read in config file. Only replace integers, and do not add anything else.");
+                    return null;
+                }
+
+                try {
+                    configs[index] = Long.parseLong(buffer[1]);
+                } catch (NumberFormatException e) {
+                    // Distinguish "too big/small for a long" from "not a number"
+                    if (buffer[1].matches("[+-]?\\d+")) {
+                        System.out.println("ERROR: The value for " + buffer[0] + " (" + buffer[1] + ") is outside the range of a long ("
+                                + Long.MIN_VALUE + " to " + Long.MAX_VALUE + ").");
+                    } else {
+                        System.out.println("ERROR: The value for " + buffer[0] + " (" + buffer[1] + ") is not a valid integer.");
+                    }
                     return null;
                 }
             }
         } catch (FileNotFoundException e) {
             System.out.println("Error: The file could not be found.");
             e.printStackTrace();
+            return null;
         }
 
         return configs;
