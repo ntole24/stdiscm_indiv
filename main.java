@@ -38,10 +38,6 @@ public class main {
                 
                 if (printType == 2) {
                     answerList = checker.getAnswerList();
-                    
-                    for (long answer: answerList) {
-                        System.out.printf("Number: %d%n", answer);
-                    }
                 }
             } catch (InterruptedException e) {
                 System.out.println("Interruption error: " + e);
@@ -66,6 +62,12 @@ public class main {
                 } catch (InterruptedException e) {
                     System.out.println("Code was interrupted, reason: " + e);
                 }
+            }
+        }
+
+        if (printType == 2) {
+            for (long answer: answerList) {
+                System.out.printf("Number: %d%n", answer);
             }
         }
 

@@ -22,7 +22,7 @@ public class bTwoCheck {
     
     // Volatile keyword is important so that as soon as these values get edited, they are instantly reflected in main memory
     private volatile boolean stop = false;
-    private volatile boolean threadsDone = false;
+    private volatile boolean decisionMade = false;
 
     // Constructor
     public bTwoCheck(long n, long x) {
@@ -52,7 +52,7 @@ public class bTwoCheck {
             this.workers.get(i).start();
         }
 
-        scheduler_loop: // Loop to delegate factors to each thread 
+        scheduler_loop: // Loop to delegate candidates to each thread 
         for (long k = 0; ; k++) {
             long c = candidate(k);
             
@@ -70,7 +70,7 @@ public class bTwoCheck {
             // Stop check here in case a different thread found a factor at this point
             if (stop) break;
         }
-        this.threadsDone = true;
+        this.decisionMade = true;
 
         for (Thread w: this.workers)
             w.join(); // ensure that all threads finish before continuing
@@ -87,9 +87,9 @@ public class bTwoCheck {
             while (!this.stop) { // Constantly loop through this while the factors are not done being checked
                 Long c = inbox.poll(20, TimeUnit.MILLISECONDS); // ether returns a value or null if nothing found within 20 miliseconds
                 
-                // Don't finish the thread only until the thread's inbox is empty and the isPrime() has reached the threadsDone = true portino
+                // Don't finish the thread only until the thread's inbox is empty and the isPrime() has reached the decisionMade = true portino
                 if (c == null) {
-                    if (this.threadsDone && inbox.isEmpty()) return; 
+                    if (this.decisionMade && inbox.isEmpty()) return; 
                     continue;
                 }
 
@@ -97,8 +97,8 @@ public class bTwoCheck {
                 if (this.n % c == 0) { 
                     // Locks this critical section and prevents anyone else from touching it until the current thread here finishes it
                     synchronized (lock) {
-                        if (factor == 0) { // first thread to get here wins
-                            factor = c;
+                        if (this.factor == 0) { // first thread to get here wins
+                            this.factor = c;
                         }
                     }
 
