@@ -1,10 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.math.BigInteger;
 import java.util.Scanner;
 
 public class main {
@@ -14,7 +10,7 @@ public class main {
         if (!isValid) {
             System.out.println();
             System.out.println("Sample command input:");
-            System.out.println("javac *.java && java main [printType] [taskDivision]");
+            System.out.println("javac *.java && java main [t] [h] [d]");
             return;
         }
         
@@ -24,87 +20,49 @@ public class main {
             return;
         }
 
-        long x = configs[0], y = configs[1];
         
-        int printType = Integer.parseInt(args[0]);
-        int taskDivision = Integer.parseInt(args[1]);
-        
-        List<Long> answerList = new ArrayList<>();
-        
-        long startTimeNumber = System.currentTimeMillis();
-        String startTime = Instant.ofEpochMilli(startTimeNumber).atZone(ZoneId.of("Asia/Manila")).format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
-        System.out.printf("START TIME: %s%n%n", startTime);
-        
-        if (taskDivision == 1) {
-            bOneCheck checker = new bOneCheck(y, x, printType);
-            
-            try {
-                checker.startThreads();
-                
-                if (printType == 2) {
-                    answerList = checker.getAnswerList();
-                }
-            } catch (InterruptedException e) {
-                System.out.println("Interruption error: " + e);
-            }
-        } else if (taskDivision == 2) {
-            for (long i = 2; i <= y; i++) {
-                bTwoCheck scheduler = new bTwoCheck(i, x);
-                
-                try {
-                    boolean prime = scheduler.isPrime();
-                    
-                    if (prime) {
-                        if (printType == 1) {
-                            long currentTimeNumber = System.currentTimeMillis();
-                            String currentTime = Instant.ofEpochMilli(currentTimeNumber).atZone(ZoneId.of("Asia/Manila")).format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
-                            System.out.printf("Timestamp: %s Number: %d%n", currentTime, i);
-                        }
-                        else if (printType == 2)
-                            answerList.add(i);
-                    } 
-                    
-                } catch (InterruptedException e) {
-                    System.out.println("Code was interrupted, reason: " + e);
-                }
-            }
-        }
+        long n = configs[0], t1 = configs[1], t2 = configs[2];
+        long t = Long.parseLong(args[0]), h = Long.parseLong(args[1]), d = Long.parseLong(args[2]); 
 
-        if (printType == 2) {
-            for (long answer: answerList) {
-                System.out.printf("Number: %d%n", answer);
-            }
-        }
-
-        long endTimeNumber = System.currentTimeMillis();
-        String endTime = Instant.ofEpochMilli(endTimeNumber).atZone(ZoneId.of("Asia/Manila")).format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
-        System.out.printf("%nEND TIME: %s%n", endTime);
-        System.out.printf("TOTAL TIME: %d ms%n%n", endTimeNumber - startTimeNumber);
+        System.out.printf("n: %d t1: %d t2: %d\n", n, t1, t2);
+        System.out.printf("t: %d h: %d d: %d\n",t, h, d );
+                
+        /* Run code here! */
     }
 
     public static boolean validArguments(String[] args) {
-        int buffer1 = 0, buffer2 = 0;
+        long buffer1 = 0, buffer2 = 0, buffer3 = 0;
+        // buffer1 = n, buffer2 = t1, buffer3 = t2
     
-        if (args.length != 2) {
-            System.out.println("Please input 2 arguments.");
+        if (args.length != 3) {
+            System.out.println("Please input 3 arguments.");
             return false;
         }
     
-        if (args[0] == null || args[0].isEmpty() || args[1] == null || args[1].isEmpty()) {
+        if (args[0] == null || args[0].isEmpty() || args[1] == null || args[1].isEmpty() || args[2] == null || args[2].isEmpty()) {
             System.out.println("Please input two number inputs after the command to run the code.");
             return false;
         }
+
+        BigInteger min = BigInteger.ZERO;
+        BigInteger max = BigInteger.valueOf(Long.MAX_VALUE);
     
         try {
-            buffer1 = Integer.parseInt(args[0]);
-            buffer2 = Integer.parseInt(args[1]);
+            for (int i = 0; i < 3; i++) {
+                BigInteger parsed = new BigInteger(args[i]);
+
+                if (parsed.compareTo(min) < 0 || parsed.compareTo(max) > 0) {
+                    System.out.println("Argument " + (i + 1) + " is out of range. Values must be between 0 and " + Long.MAX_VALUE + ".");
+                    return false;
+                }
+            }
         } catch (NumberFormatException e) {
-            System.out.println("Please input a numerical input of either 1 or 2 for each argument.");
+            System.out.println("Please input a numerical input for each argument.");
             return false;
         }
     
-        if ((buffer1 != 1 && buffer1 != 2) || (buffer2 != 1 && buffer2 != 2)) {
-            System.out.println("Please input either 1 or 2 in each of the arguments for the command.");
+        if (buffer2 > buffer3) {
+            System.out.println("Please input a value for the maximum time that is greater than or equal to the value of the minimum time.");
             return false;
         }
     
@@ -112,11 +70,14 @@ public class main {
     }
 
     public static long[] readConfig() {
-        long[] configs = new long[2];
+        long[] configs = new long[3];
 
         File file = new File("config.txt");
 
         int fileLength = 0;
+
+        BigInteger min = BigInteger.ZERO;
+        BigInteger max = BigInteger.valueOf(Long.MAX_VALUE);
 
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
@@ -124,43 +85,56 @@ public class main {
                 String[] buffer = line.split(" ");
 
                 fileLength++;
+                System.out.println("Line: " + fileLength);
+                System.out.println("buffer0: " + buffer[0] + " buffer1: " + buffer[1]);
 
-                if (fileLength > 2) {
-                    System.out.printf("ERROR: There must be exactly 2 lines in config.txt.%nOne line must be in the form \"x <number>\", and the other must be in the form \"y <number>\".%n");
+                if (fileLength > 3) {
+                    System.out.printf("ERROR: There must be exactly 3 lines in config.txt.%nOne line must be in the form \"n <number>\", \"t1 <number>\", and \"t2 <number>\" .%n");
                     return null;
                 }
 
                 if (buffer.length != 2) {
-                    System.out.println("ERROR: Each line must be in the form \"x <number>\" or \"y <number>\".");
+                    System.out.println("ERROR: Each line must be in the form \"<variable> <number>\".");
                     return null;
                 }
 
                 int index;
-                if (buffer[0].equals("x")) {
+
+                if (buffer[0].equals("n")) {
                     index = 0;
-                } else if (buffer[0].equals("y")) {
+                } else if (buffer[0].equals("t1")) {
                     index = 1;
+                } else if (buffer[0].equals("t2")) {
+                    index = 2;  
                 } else {
                     System.out.println("ERROR: Invalid read in config file. Only replace integers, and do not add anything else.");
                     return null;
                 }
 
                 try {
-                    configs[index] = Long.parseLong(buffer[1]);
-                } catch (NumberFormatException e) {
-                    // Distinguish "too big/small for a long" from "not a number"
-                    if (buffer[1].matches("[+-]?\\d+")) {
-                        System.out.println("ERROR: The value for " + buffer[0] + " (" + buffer[1] + ") is outside the range of a long ("
-                                + Long.MIN_VALUE + " to " + Long.MAX_VALUE + ").");
-                    } else {
-                        System.out.println("ERROR: The value for " + buffer[0] + " (" + buffer[1] + ") is not a valid integer.");
+                    BigInteger parsed = new BigInteger(buffer[1]);
+
+                    if (parsed.compareTo(min) < 0 || parsed.compareTo(max) > 0) {
+                        System.out.println((parsed) + " is out of range. Values must be between 0 and " + Long.MAX_VALUE + ".");
+
+                        return null;
                     }
+
+                    configs[index] = parsed.longValue();
+                } catch (NumberFormatException e) {
+                    System.out.println("Please input a numerical input for each argument in the config file.");
+                    
                     return null;
                 }
             }
         } catch (FileNotFoundException e) {
             System.out.println("Error: The file could not be found.");
             e.printStackTrace();
+            return null;
+        }
+
+        if (fileLength < 3) {
+            System.out.printf("ERROR: There must be exactly 3 lines in config.txt.%nEach line must be of a form of either \"n <number>\", \"t1 <number>\", and \"t2 <number>\" .%n");
             return null;
         }
 
