@@ -24,10 +24,14 @@ public class main {
         long n = configs[0], t1 = configs[1], t2 = configs[2];
         long t = Long.parseLong(args[0]), h = Long.parseLong(args[1]), d = Long.parseLong(args[2]); 
 
-        System.out.printf("n: %d t1: %d t2: %d\n", n, t1, t2);
-        System.out.printf("t: %d h: %d d: %d\n",t, h, d );
+        if (t2 > 15) {
+            System.out.println("Please input a value for t2 that is less than or equal to 15.");
+            return;
+        }
                 
         /* Run code here! */
+        Grouper grouper = new Grouper(n, t1, t2, t, h, d);
+        grouper.runGrouping();
     }
 
     public static boolean validArguments(String[] args) {
