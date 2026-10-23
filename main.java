@@ -89,8 +89,6 @@ public class main {
                 String[] buffer = line.split(" ");
 
                 fileLength++;
-                System.out.println("Line: " + fileLength);
-                System.out.println("buffer0: " + buffer[0] + " buffer1: " + buffer[1]);
 
                 if (fileLength > 3) {
                     System.out.printf("ERROR: There must be exactly 3 lines in config.txt.%nOne line must be in the form \"n <number>\", \"t1 <number>\", and \"t2 <number>\" .%n");
